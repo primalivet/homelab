@@ -16,13 +16,12 @@
         in
         import ./shells { inherit pkgs; };
 
-      mkHomelabSystem = name: { system, user }:
+      mkHomelabSystem = name: { system }:
         nixpkgs.lib.nixosSystem {
           inherit system;
-          specialArgs = { inherit user name; };
+          specialArgs = { inherit name; };
           modules = [
             ./machines/${name}/configuration.nix
-            ./users/${user}/homelab.nix
             ];
         };
 
@@ -35,7 +34,6 @@
 
       nixosConfigurations.homelab1 = mkHomelabSystem "homelab1" {
         system = "aarch64-linux";
-        user = "gustaf";
       };
 
       nixosConfigurations.iso-aarch64 = nixpkgs.lib.nixosSystem {
