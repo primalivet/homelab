@@ -58,12 +58,6 @@
   #   useXkbConfig = true; # use xkb.options in tty.
   # };
 
-  services.xserver.enable = true;
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
-  services.spice-vdagentd.enable = true;
-  services.spice-autorandr.enable = true;
-
   services.k3s = {
     enable = true;
     role = "server";
@@ -96,7 +90,6 @@
     git
     curl
     wget
-    firefox
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
