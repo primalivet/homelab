@@ -9,9 +9,5 @@
       go
       gopls
     ];
-
-    shellHook = ''
-      export KUBECONFIG=./.kube/config
-    '';
   }; 
 }
