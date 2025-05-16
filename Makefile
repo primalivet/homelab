@@ -12,6 +12,8 @@ format:
 
 iso: 
 	nix build .#nixosConfigurations.iso-aarch64.config.system.build.isoImage
+iso-x86_64: 
+	nix build .#nixosConfigurations.iso-x86_64.config.system.build.isoImage
 
 connected-install:
 	@if [ -z "$(MACHINE_IP)" ]; then \
