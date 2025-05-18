@@ -20,10 +20,14 @@ connected-install:
 		echo "MACHINE_IP is not set"; \
 		exit 1; \
 	fi
+	@if [ -z "$(MACHINE_DISK)" ]; then \
+		echo "MACHINE_DISK is not set"; \
+		exit 1; \
+	fi
 	@echo "Trying to login to $(MACHINE_IP)"
 	scp install-homelab-machine.sh nixos@$(MACHINE_IP):/home/nixos
 	ssh nixos@$(MACHINE_IP) "chmod +x install-homelab-machine.sh"
-	@echo "Run 'sudo ./install-homelab-machine.sh <machine-name>' to start the installation."
+	@echo "Run 'sudo ./install-homelab-machine.sh <machine-name> <machine-disk>' to start the installation."
 	ssh nixos@$(MACHINE_IP)
 
 # TODO: the installer script has a dialog for proceeding that does not work
@@ -38,9 +42,13 @@ remote-install: install-homelab-machine.sh
 		echo "MACHINE_IP is not set"; \
 		exit 1; \
 	fi
-	@echo "Trying to installing $(MACHINE_NAME) on $(MACHINE_IP)"
+	@if [ -z "$(MACHINE_DISK)" ]; then \
+		echo "MACHINE_DISK is not set"; \
+		exit 1; \
+	fi
+	@echo "Trying to installing $(MACHINE_NAME) on disk $(MACHINE_DISK) on host $(MACHINE_IP)"
 	scp install-homelab-machine.sh nixos@$(MACHINE_IP):/home/nixos
-	ssh nixos@$(MACHINE_IP) "chmod +x install-homelab-machine.sh && sudo ./install-homelab-machine.sh $(MACHINE_NAME)"
+	ssh nixos@$(MACHINE_IP) "chmod +x install-homelab-machine.sh && sudo ./install-homelab-machine.sh $(MACHINE_NAME) $(MACHINE_DISK)"
 	ssh nixos@$(MACHINE_IP) "sleep 10 && sudo poweroff"
 
 # TODO: Set default values here for other script arguments, emial, name, etc.

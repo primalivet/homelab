@@ -32,8 +32,12 @@
       };
 
 
+      # nixosConfigurations.homelab1 = mkHomelabSystem "homelab1" {
+      #   system = "aarch64-linux";
+      # };
+
       nixosConfigurations.homelab1 = mkHomelabSystem "homelab1" {
-        system = "aarch64-linux";
+        system = "x86_64-linux";
       };
 
       nixosConfigurations.iso-aarch64 = nixpkgs.lib.nixosSystem {
