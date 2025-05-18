@@ -33,7 +33,7 @@
    ];
   };
 
-  networking.interfaces.enp0s1.ipv4.addresses = [
+  networking.interfaces.enp2s0.ipv4.addresses = [
    {
      address = "192.168.1.10";
      prefixLength = 24;
