@@ -42,7 +42,7 @@
           system = "aarch64-linux";
           modules = [
             (nixpkgs + "/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix")
-	    ./modules/homelab-iso.nix
+            ./modules/homelab-iso.nix
           ];
         };
 
@@ -50,7 +50,7 @@
           system = "x86_64-linux";
           modules = [
             (nixpkgs + "/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix")
-	    ./modules/homelab-iso.nix
+            ./modules/homelab-iso.nix
           ];
         };
 
