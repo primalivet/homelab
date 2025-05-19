@@ -5,7 +5,7 @@
     [
       # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ../common/default.nix
+      ../../modules/homelab-base.nix
     ];
 
   networking.hostName = "vm-homelab1"; # Define your hostname.
