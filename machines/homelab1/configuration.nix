@@ -22,22 +22,22 @@
   networking.hostName = name; # Define your hostname.
 
   networking.firewall = {
-   enable = true;
-   allowedTCPPorts = [
-     6443 # k3s: required so that pods can reach the API server (running on port 6443 by default)
-     # 2379 # k3s, etcd clients: required if using a "High Availability Embedded etcd" configuration
-     # 2380 # k3s, etcd peers: required if using a "High Availability Embedded etcd" configuration
-   ];
-   allowedUDPPorts = [
-     # 8472 # k3s, flannel: required if using multi-node for inter-node networking
-   ];
+    enable = true;
+    allowedTCPPorts = [
+      6443 # k3s: required so that pods can reach the API server (running on port 6443 by default)
+      # 2379 # k3s, etcd clients: required if using a "High Availability Embedded etcd" configuration
+      # 2380 # k3s, etcd peers: required if using a "High Availability Embedded etcd" configuration
+    ];
+    allowedUDPPorts = [
+      # 8472 # k3s, flannel: required if using multi-node for inter-node networking
+    ];
   };
 
   networking.interfaces.enp2s0.ipv4.addresses = [
-   {
-     address = "192.168.1.10";
-     prefixLength = 24;
-   }
+    {
+      address = "192.168.1.10";
+      prefixLength = 24;
+    }
   ];
   networking.defaultGateway = "192.168.1.1";
   networking.nameservers = [ "192.168.1.1" ];

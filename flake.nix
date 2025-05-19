@@ -14,12 +14,12 @@
             config.allowUnfree = true;
           };
         in
-          import ./shells { inherit pkgs; };
+        import ./shells { inherit pkgs; };
     in
-      {
+    {
       formatter = {
         aarch64-linux = nixpkgs.legacyPackages.aarch64-linux.nixpkgs-fmt;
-        aarch64-darwin = nixpkgs.legacyPackages.aarch64-linux.nixpkgs-fmt;
+        aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixpkgs-fmt;
       };
 
       nixosConfigurations = {
