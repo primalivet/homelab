@@ -10,14 +10,12 @@
 
   networking.hostName = "vm-homelab1"; # Define your hostname.
 
-
   networking.interfaces.enp0s1.ipv4.addresses = [
     {
       address = "192.168.1.20";
       prefixLength = 24;
     }
   ];
-
 
   services.k3s = {
     enable = true;
