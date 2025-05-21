@@ -27,9 +27,9 @@ with lib;
         10250 # k3s, required for kublet metrics
       ];
       allowedUDPPorts = [
-        8472 # k3s, flannel: required if using multi-node for inter-node networking
-        # 51820 # k3s, required only for Flannel Wireguard IPv4
-        # 51821 # k3s, required only for Flannel Wireguard IPv6
+        8472  # k3s, flannel: required if using multi-node for inter-node networking
+        51820 # k3s, required only for Flannel Wireguard IPv4
+        51821 # k3s, required only for Flannel Wireguard IPv6
       ];
     };
 
