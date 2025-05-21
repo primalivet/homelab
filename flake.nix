@@ -31,6 +31,13 @@
           ];
         };
 
+        homelab2 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./machines/homelab2/configuration.nix
+          ];
+        };
+
         vm-homelab1 = nixpkgs.lib.nixosSystem {
           system = "aarch64-linux";
           modules = [
