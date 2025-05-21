@@ -21,12 +21,15 @@ with lib;
     networking.firewall = {
       enable = true;
       allowedTCPPorts = [
-        6443 # k3s: required so that pods can reach the API server (running on port 6443 by default)
-        # 2379 # k3s, etcd clients: required if using a "High Availability Embedded etcd" configuration
-        # 2380 # k3s, etcd peers: required if using a "High Availability Embedded etcd" configuration
+        6443  # k3s: required so that pods can reach the API server (running on port 6443 by default)
+        2379  # k3s, etcd clients: required if using a "High Availability Embedded etcd" configuration
+        2380  # k3s, etcd peers: required if using a "High Availability Embedded etcd" configuration
+        10250 # k3s, required for kublet metrics
       ];
       allowedUDPPorts = [
-        # 8472 # k3s, flannel: required if using multi-node for inter-node networking
+        8472 # k3s, flannel: required if using multi-node for inter-node networking
+        # 51820 # k3s, required only for Flannel Wireguard IPv4
+        # 51821 # k3s, required only for Flannel Wireguard IPv6
       ];
     };
 
