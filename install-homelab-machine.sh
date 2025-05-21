@@ -1,59 +1,70 @@
 #!/usr/bin/env bash
 
 # Exit on error
-# This means if any command fails, the script will stop immediately
 set -e
 
-# Get system name from first argument
-# This is what tells us which machine we're installing (like homelab1, homelab2)
-SYSTEM_NAME=$1
-if [ -z "$SYSTEM_NAME" ]; then
-    echo "Usage: $0 <system-name>"
-    echo "Example: $0 homelab1"
+SYSTEM_NAME=""
+DISK=""
+SKIP_CONFIRM=false
+SHOW_USAGE=false
+
+# Parse arguments
+for arg in "$@"; do
+  if [[ "$arg" == "-h" ]]; then
+    SHOW_USAGE=true
+  elif [[ "$arg" == "-y" ]]; then
+    SKIP_CONFIRM=true
+  elif [[ -z "$SYSTEM_NAME" ]]; then
+    SYSTEM_NAME="$arg"
+  elif [[ -z "$DISK" ]]; then
+    DISK="$arg"
+  fi
+done
+
+if [[ "$SHOW_USAGE" == "true" || -z "$SYSTEM_NAME" || -z "$DISK" ]]; then
+    echo "Usage: $0 [<options>] <system-name> <disk>"
+    echo "Options:"
+    echo "  -h    Show this help message"
+    echo "  -y    Skip confirmation"
+    echo ""
+    echo "Example: $0 homelab1 /dev/nvme0s1"
+    echo "Example: $0 -y homelab1 /dev/nvme0s1"
     exit 1
 fi
 
+echo "Installing NixOS on $SYSTEM_NAME with disk $DISK"
+
 # Get disk device from second argument, or auto-detect
 # We need to know which disk to install on (like /dev/sda, /dev/vda)
-DISK=$2
 PART_DELIM=""  # Default delimiter for partitions (sda1, vda1)
 
-if [ -z "$DISK" ]; then
-    # Try to find the disk automatically by checking common locations
-    if [ -e "/dev/vda" ]; then
-        # Virtual machines often use vda
-        DISK="/dev/vda"
-    elif [ -e "/dev/sda" ]; then
-        # Most physical machines use sda
-        DISK="/dev/sda"
-    elif [ -e "/dev/nvme0n1" ]; then
-        # Modern SSDs use nvme
-        DISK="/dev/nvme0n1"
-        PART_DELIM="p"  # NVMe uses pX (nvme0n1p1, nvme0n1p2)
-    else
-        echo "Error: Could not detect disk device"
-        echo "Please specify disk as second argument"
-        echo "Example: $0 homelab1 /dev/sda"
-        exit 1
-    fi
-else
-    # Check if specified disk is NVMe
-    if [[ $DISK == *"nvme"* ]]; then
-        PART_DELIM="p"  # NVMe uses pX (nvme0n1p1, nvme0n1p2)
-    fi
+if [[ "$DISK" == "/dev/nvme"* ]]; then
+  PART_DELIM="p"  # NVMe uses pX (nvme0n1p1, nvme0n1p2)
+fi
+
+# Verify disk exists
+echo "Verifying disk exists..."
+if ! lsblk "$DISK" &>/dev/null; then
+    echo "Error: Disk $DISK does not exist or is not accessible"
+    exit 1
 fi
 
 echo "Installing $SYSTEM_NAME to $DISK"
-echo
+
 # Show current disk layout to user before we modify anything
+echo
 lsblk
 echo
-# Ask user to confirm they're okay with erasing the disk
-read -p "This will ERASE all data on $DISK. Continue? (y/N): " response
-case "$response" in
-    [yY]) ;;
-    *) echo "Installation cancelled"; exit 1 ;;
-esac
+
+# Skip confirmation if SKIP_CONFIRM is true (-y flag is set)
+if [[ "$SKIP_CONFIRM" == "false" ]]; then
+    # Ask user to confirm they're okay with erasing the disk
+    read -p "This will ERASE all data on $DISK. Continue? (y/N): " response
+    case "$response" in
+        [yY]) ;;
+        *) echo "Installation cancelled"; exit 1 ;;
+    esac
+fi
 
 # Cleanup and unmount everything
 echo "[1/8] Cleaning up any previous installation..."
