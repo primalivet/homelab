@@ -20,6 +20,8 @@
   services.k3s = {
     enable = true;
     role = "server";
+    token = "supersecretvalue"; # TODO: change me
+    clusterInit = true;
   };
 
   # This option defines the first version of NixOS you have installed on this particular machine,
