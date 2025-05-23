@@ -1,34 +1,34 @@
 HOMELAB
 
+This repository contains the configuration for my homelab.
+
+- Machine are running NixOS.
+- Services are hosted in Kubernetes.
+- Secrets are managed with SOPS and AGE keys.
+
+PREREQUISITES
+
+- Your machine AGE key for SOPS is valid recipient in .sops.yaml.
+- Network where the IP range 192.168.1.10 - 192.168.1.29 is free (not used by DHCP).
+- Gateway and DNS is available at IP 192.168.1.1
+
 NEW MACHINE
 
-This repository's flake has a configuration for building a bootable NixOS ISO
-image, packed with OpenSSH server and a public key, which makes it possible to
-carry out the install via SSH.
-
-NEW MACHINE - CONNECTED INSTALL
-
-1. Build the iso with 'make iso'
-2. Boot the new machine (physical or virtual) from built iso.
+1. Build a bootable NixOS ISO image.
+2. Boot machine from built ISO.
 3. Get the IP address of the new machine.
-4. Connect and do the install manually with 
-   'make connected-install MACHINE_IP=<machine-ip> MACHINE_NAME=<machine-name>'
+4. Install NixOS from flake using `make connected-install` or `make remote-install`.
+5. Run the `make post-install` to commit the newly generated
+   `hardware-configuration.nix` to the repository.
 
-NEW MACHINE - REMOTE INSTALL
+ISSUES
 
-1. Build the iso with 'make iso'
-2. Boot the new machine (physical or virtual) from built iso.
-3. Get the IP address of the new machine.
-4. Connect and do the install manually with 
-   'make remote-install MACHINE_IP=<machine-ip> MACHINE_NAME=<machine-name>'
+- K3S token rotation: Changing token requires resetting the cluster 
+  GitHub issue: https://github.com/NixOS/nixpkgs/issues/308201
+  Cluster upkeep docs: https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/networking/cluster/k3s/docs/CLUSTER_UPKEEP.md
 
-NEW MACHINE - POST INSTALL
-
-When the machine is installed, a new hardware-configuration.nix file has been
-created in '/etc/nixos/hardware-configuration.nix'. So directly after the
-install, this file is not in version control. 
-
-To fix this run the post install script 'make post-install
-MACHINE_NAME=<machine-name> MACHINE_IP=<machine-ip>' which will copy the new
-hardware-configuration.nix file to the repository and add it to version
-control.
+TODO: Setup third machine.
+TODO: Setup database (persistent outside Kubernetes cluster)
+TODO: Setup object storage (persistent outside Kubernetes cluster)
+TODO: Run Home Assistant.
+TODO: 3-2-1 backup strategy (3 copies of data, 2 local, 1 offsite).
