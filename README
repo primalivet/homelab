@@ -27,7 +27,6 @@ ISSUES
   GitHub issue: https://github.com/NixOS/nixpkgs/issues/308201
   Cluster upkeep docs: https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/networking/cluster/k3s/docs/CLUSTER_UPKEEP.md
 
-TODO: Setup third machine.
 TODO: Setup database (persistent outside Kubernetes cluster)
 TODO: Setup object storage (persistent outside Kubernetes cluster)
 TODO: Run Home Assistant.
