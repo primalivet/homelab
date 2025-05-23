@@ -5,6 +5,7 @@
     [
       # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ../../modules/homelab-secrets.nix
       ../../modules/homelab-base.nix
     ];
 
@@ -18,9 +19,13 @@
   ];
 
   services.k3s = {
-    enable = true;
+    enable = false;
     role = "server";
-    token = "supersecretvalue"; # TODO: change me
+    tokenFile = config.sops.secrets.k3s_token.path;
+    extraFlags = toString [
+     "--debug"
+     "--write-kubeconfig-mode" "644"
+    ];
     clusterInit = true;
   };
 

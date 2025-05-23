@@ -6,7 +6,7 @@
     sops-nix.url = "github:Mic92/sops-nix";
   };
 
-  outputs = inputs@{ self, nixpkgs, ... }:
+  outputs = inputs@{ self, nixpkgs, sops-nix, ... }:
     let
       mkShell = system:
         let
@@ -29,6 +29,7 @@
           system = "x86_64-linux";
           modules = [
             ./machines/homelab1/configuration.nix
+	    sops-nix.nixosModules.sops
           ];
         };
 

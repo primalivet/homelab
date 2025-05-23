@@ -38,6 +38,7 @@ with lib;
       git
       curl
       wget
+      sops
     ];
 
     services.openssh = {
