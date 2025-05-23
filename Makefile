@@ -15,6 +15,13 @@ iso:
 iso-x86_64: 
 	nix build .#nixosConfigurations.iso-x86_64.config.system.build.isoImage
 
+agekey-retrive:
+	@if [ -z "$(MACHINE_IP)" ]; then \
+		echo "MACHINE_IP is not set"; \
+		exit 1; \
+	fi
+	ssh gustaf@$(MACHINE_IP) 'cat /etc/ssh/ssh_host_ed25519_key.pub' | ssh-to-age
+
 connected-install:
 	@if [ -z "$(MACHINE_IP)" ]; then \
 		echo "MACHINE_IP is not set"; \

@@ -1,0 +1,12 @@
+# https://github.com/Mic92/sops-nix
+keys:
+  - &gustaf_mbp age1j0kun6sgqunj0ll7dzsrl7dv8l8h423z3e7z845we7kayq96nshqwn8fgd
+  - &homelab1 age1ap55tggyg26qsd44vw30ayzj792zgsz98jna7zhjcuy9amszne7sy2ts6z
+  - &homelab2 age17p0h8gpsxhmq7p2nk7r56rmt0y7xv88jlhm304guwfc3250z5p9qpjvm2g
+creation_rules:
+  - path_regex: secrets.yaml
+    key_groups:
+    - age:
+      - *gustaf_mbp
+      - *homelab1
+      - *homelab2
