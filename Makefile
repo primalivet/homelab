@@ -15,6 +15,12 @@ iso:
 iso-x86_64: 
 	nix build .#nixosConfigurations.iso-x86_64.config.system.build.isoImage
 
+poweroff-all:
+	@echo "Powering off homelab3"
+	ssh -t gustaf@192.168.1.12 "sudo poweroff"
+	ssh -t gustaf@192.168.1.11 "sudo poweroff"
+	ssh -t gustaf@192.168.1.10 "sudo poweroff"
+
 agekey-retrive:
 	@if [ -z "$(MACHINE_IP)" ]; then \
 		echo "MACHINE_IP is not set"; \
