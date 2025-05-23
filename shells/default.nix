@@ -10,6 +10,11 @@
       # services
       go
       gopls
+
+      # testing
+      pyright
+      python3
+      python3Packages.locust
     ];
   };
 }
