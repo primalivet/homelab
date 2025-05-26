@@ -5,6 +5,14 @@ keys:
   - &homelab2 age17p0h8gpsxhmq7p2nk7r56rmt0y7xv88jlhm304guwfc3250z5p9qpjvm2g
   - &homelab3 age17vy29ayvjxk6rs66rc5wcluy9x09y3y8n75psmuutzt6mel675hs6ktf5w
 creation_rules:
+  - path_regex: kubernetes/secrets.yaml
+    encrypted_regex: '^(data|stringData)$'
+    key_groups:
+    - age:
+      - *gustaf_mbp
+      - *homelab1
+      - *homelab2
+      - *homelab3
   - path_regex: secrets.yaml
     key_groups:
     - age:
