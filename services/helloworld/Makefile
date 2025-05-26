@@ -9,7 +9,7 @@ set_builder:
 	docker buildx create --name homelab-builder --use || true
 
 unset_builder:
-	docker buildx use default || true
+	docker context use default || true
 	docker buildx rm homelab-builder || true
 
 build:
