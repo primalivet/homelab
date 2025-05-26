@@ -45,6 +45,7 @@
           system = "x86_64-linux";
           modules = [
             ./machines/homelab3/configuration.nix
+	    sops-nix.nixosModules.sops
           ];
         };
 
