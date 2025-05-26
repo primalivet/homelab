@@ -10,6 +10,7 @@
       # services
       go
       gopls
+      postgresql
 
       # testing
       pyright
