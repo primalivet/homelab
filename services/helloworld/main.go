@@ -11,8 +11,12 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+	message := os.Getenv("HELLOWORLD")
+	if message == "" {
+		message = "MISSING 'HELLOWORLD' ENV VAR"
+	}
 	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, World!"))
+		w.Write([]byte("Hello, World! " + message))
 	})
 
 	http.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
