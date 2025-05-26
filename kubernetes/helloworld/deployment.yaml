@@ -21,6 +21,12 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
+        env:
+        - name: HELLOWORLD
+          valueFrom:
+              secretKeyRef:
+                name: homelab-secrets
+                key: HELLOWORLD
         resources:
           limits:
             cpu: "0.5"
