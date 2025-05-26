@@ -21,6 +21,17 @@ poweroff-all:
 	ssh -t gustaf@192.168.1.11 "sudo poweroff"
 	ssh -t gustaf@192.168.1.10 "sudo poweroff"
 
+k8s-shutdown-all:
+	@echo "Draining Kubernetes nodes..."
+	kubectl drain homelab2 --ignore-daemonsets --delete-emptydir-data --force --grace-period=30 || true
+	kubectl drain homelab3 --ignore-daemonsets --delete-emptydir-data --force --grace-period=30 || true
+	kubectl drain homelab1 --ignore-daemonsets --delete-emptydir-data --force --grace-period=30 || true
+	@echo "Powering off machines..."
+	ssh -t gustaf@192.168.1.12 "sudo poweroff" || true
+	ssh -t gustaf@192.168.1.11 "sudo poweroff" || true  
+	ssh -t gustaf@192.168.1.10 "sudo poweroff" || true
+	@echo "Shutdown complete"
+
 agekey-retrive:
 	@if [ -z "$(MACHINE_IP)" ]; then \
 		echo "MACHINE_IP is not set"; \
