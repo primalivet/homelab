@@ -17,8 +17,8 @@ NEW MACHINE
 1. Build a bootable NixOS ISO image.
 2. Boot machine from built ISO.
 3. Get the IP address of the new machine.
-4. Install NixOS from flake using `make connected-install` or `make remote-install`.
-5. Run the `make post-install` to commit the newly generated
+4. Install NixOS from flake using `make machine-connected-install` or `make machine-remote-install`.
+5. Run the `make machine-post-install` to commit the newly generated
    `hardware-configuration.nix` to the repository.
 
 ISSUES

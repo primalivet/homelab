@@ -1,27 +1,16 @@
-switch-macbook-pro:
-	darwin-rebuild switch --flake .#macbook-pro
-
-check-macbook-pro:
-	darwin-rebuild check --flake .#macbook-pro
-
 update:
 	nix flake update
 
 format:
 	nix fmt
 
-iso: 
+iso-aarch64: 
 	nix build .#nixosConfigurations.iso-aarch64.config.system.build.isoImage
+
 iso-x86_64: 
 	nix build .#nixosConfigurations.iso-x86_64.config.system.build.isoImage
 
-poweroff-all:
-	@echo "Powering off homelab3"
-	ssh -t gustaf@192.168.1.12 "sudo poweroff"
-	ssh -t gustaf@192.168.1.11 "sudo poweroff"
-	ssh -t gustaf@192.168.1.10 "sudo poweroff"
-
-k8s-shutdown-all:
+machine-shutdown-all:
 	@echo "Draining Kubernetes nodes..."
 	kubectl drain homelab2 --ignore-daemonsets --delete-emptydir-data --force --grace-period=30 || true
 	kubectl drain homelab3 --ignore-daemonsets --delete-emptydir-data --force --grace-period=30 || true
@@ -32,14 +21,14 @@ k8s-shutdown-all:
 	ssh -t gustaf@192.168.1.10 "sudo poweroff" || true
 	@echo "Shutdown complete"
 
-agekey-retrive:
+machine-retrive-agekey:
 	@if [ -z "$(MACHINE_IP)" ]; then \
 		echo "MACHINE_IP is not set"; \
 		exit 1; \
 	fi
 	ssh gustaf@$(MACHINE_IP) 'cat /etc/ssh/ssh_host_ed25519_key.pub' | ssh-to-age
 
-connected-install:
+machine-connected-install:
 	@if [ -z "$(MACHINE_IP)" ]; then \
 		echo "MACHINE_IP is not set"; \
 		exit 1; \
@@ -54,7 +43,7 @@ connected-install:
 	@echo "Run 'sudo ./install-homelab-machine.sh <machine-name> <machine-disk>' to start the installation."
 	ssh nixos@$(MACHINE_IP)
 
-remote-install: install-homelab-machine.sh
+machine-remote-install: install-homelab-machine.sh
 	@if [ -z "$(MACHINE_NAME)" ]; then \
 		echo "MACHINE_NAME is not set"; \
 		exit 1; \
@@ -73,7 +62,7 @@ remote-install: install-homelab-machine.sh
 	ssh nixos@$(MACHINE_IP) "sleep 10 && sudo poweroff"
 
 # TODO: Set default values here for other script arguments, emial, name, etc.
-post-install: post-install-homelab-machine.sh
+machine-post-install: post-install-homelab-machine.sh
 	@if [ -z "$(MACHINE_NAME)" ]; then \
 		echo "MACHINE_NAME is not set"; \
 		exit 1; \
