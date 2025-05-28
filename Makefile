@@ -38,12 +38,12 @@ machine-connected-install:
 		exit 1; \
 	fi
 	@echo "Trying to login to $(MACHINE_IP)"
-	scp install-homelab-machine.sh nixos@$(MACHINE_IP):/home/nixos
+	scp ./scripts/install-homelab-machine.sh nixos@$(MACHINE_IP):/home/nixos
 	ssh nixos@$(MACHINE_IP) "chmod +x install-homelab-machine.sh"
 	@echo "Run 'sudo ./install-homelab-machine.sh <machine-name> <machine-disk>' to start the installation."
 	ssh nixos@$(MACHINE_IP)
 
-machine-remote-install: install-homelab-machine.sh
+machine-remote-install: 
 	@if [ -z "$(MACHINE_NAME)" ]; then \
 		echo "MACHINE_NAME is not set"; \
 		exit 1; \
@@ -57,12 +57,12 @@ machine-remote-install: install-homelab-machine.sh
 		exit 1; \
 	fi
 	@echo "Trying to installing $(MACHINE_NAME) on disk $(MACHINE_DISK) on host $(MACHINE_IP)"
-	scp install-homelab-machine.sh nixos@$(MACHINE_IP):/home/nixos
+	scp ./scripts/install-homelab-machine.sh nixos@$(MACHINE_IP):/home/nixos
 	ssh nixos@$(MACHINE_IP) "chmod +x install-homelab-machine.sh && sudo ./install-homelab-machine.sh -y $(MACHINE_NAME) $(MACHINE_DISK)"
 	ssh nixos@$(MACHINE_IP) "sleep 10 && sudo poweroff"
 
 # TODO: Set default values here for other script arguments, emial, name, etc.
-machine-post-install: post-install-homelab-machine.sh
+machine-post-install:
 	@if [ -z "$(MACHINE_NAME)" ]; then \
 		echo "MACHINE_NAME is not set"; \
 		exit 1; \
@@ -72,4 +72,4 @@ machine-post-install: post-install-homelab-machine.sh
 		exit 1; \
 	fi
 	@echo "Trying to do post install $(MACHINE_NAME) on $(MACHINE_IP)"
-	./post-install-homelab-machine.sh $(MACHINE_NAME) $(MACHINE_IP)
+	./scripts/post-install-homelab-machine.sh $(MACHINE_NAME) $(MACHINE_IP)
