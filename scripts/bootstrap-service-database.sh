@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 set -e
 
+# psql connection variables
+export PGUSER=${PGUSER:-"postgres"}
+export PGPASSWORD=${PGPASSWORD:-"postgres"}
+export PGHOST=${PGHOST:-"localhost"}
+export PGPORT=${PGPORT:-"5432"}
+
 SERVICE_NAME=$1
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVICES_DIR="$(cd "$SCRIPT_DIR/../services" && pwd)"
-AVAILABLE_SERVICES=$(find "$SERVICES_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
 
 # Check if SERVICE_NAME is provided and that it exactly matches one of the available services
 if [[ -z "$SERVICE_NAME" ]] || [[ ! -d "$SERVICES_DIR/$SERVICE_NAME" ]]; then
+  AVAILABLE_SERVICES=$(find "$SERVICES_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
   echo "Usage: $0 <service_name>"
   echo "Please provide a service name from the available services:"
   for service in $AVAILABLE_SERVICES; do
@@ -15,10 +21,6 @@ if [[ -z "$SERVICE_NAME" ]] || [[ ! -d "$SERVICES_DIR/$SERVICE_NAME" ]]; then
   done
   exit 1
 fi
-
-DB_HOST=${POSTGRES_HOST:-"localhost"}
-DB_PORT=${POSTGRES_PORT:-"5432"}
-DB_USER=${POSTGRES_USER:-"postgres"}
 
 NEW_DB_USER="service_${SERVICE_NAME}"
 NEW_DB_NAME="service_${SERVICE_NAME}"
@@ -30,32 +32,27 @@ NEW_DB_USER_PASSWORD=$(openssl rand -hex 36)
 # -A: unaligned output 
 # -c: run the command
 
-CREATED_USER=0
-# -tAc does not work on this command
-USER_COUNT=$(PGPASSWORD=${POSTGRES_PASSWORD:-"postgres"} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -tAc "SELECT COUNT(*) FROM pg_roles WHERE rolname='$NEW_DB_USER'")
+# Create a new user if it does not already exist
+USER_COUNT=$(psql -tAc "SELECT COUNT(*) FROM pg_roles WHERE rolname='$NEW_DB_USER'")
 if [ "$USER_COUNT" == "0" ]; then
-  PGPASSWORD=${POSTGRES_PASSWORD:-"postgres"} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -c "CREATE USER $NEW_DB_USER WITH PASSWORD '$NEW_DB_USER_PASSWORD';" > /dev/null
-  CREATED_USER=1
+  psql -c "CREATE USER $NEW_DB_USER WITH PASSWORD '$NEW_DB_USER_PASSWORD';" > /dev/null
   echo "USER:       '$NEW_DB_USER' created."
+  echo "PASSWORD:   $NEW_DB_USER_PASSWORD"
+  echo "            (this is the only time it will be shown)"
 else
   echo "USER:       '$NEW_DB_USER' already exists."
+  echo "PASSWORD:   <existing user, password not changed>"
 fi
 
-DB_COUNT=$(PGPASSWORD=${POSTGRES_PASSWORD:-"postgres"} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -tAc "SELECT COUNT(*) FROM pg_database WHERE datname='$NEW_DB_NAME'")
+# Create a new database if it does not already exist
+DB_COUNT=$(psql -tAc "SELECT COUNT(*) FROM pg_database WHERE datname='$NEW_DB_NAME'")
 if [ "$DB_COUNT" == "0" ]; then
-  PGPASSWORD=${POSTGRES_PASSWORD:-"postgres"} createdb -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} ${NEW_DB_NAME}
+  createdb ${NEW_DB_NAME}
   echo "DATABASE:   '$NEW_DB_NAME' created."
 else
   echo "DATABASE:   '$NEW_DB_NAME' already exists."
 fi
 
-# -tAc does not work on this command
-PGPASSWORD=${POSTGRES_PASSWORD:-"postgres"} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -c "GRANT ALL PRIVILEGES ON DATABASE $NEW_DB_NAME TO $NEW_DB_USER;" > /dev/null
+# Grant all privileges on the database to the user
+psql -c "GRANT ALL PRIVILEGES ON DATABASE $NEW_DB_NAME TO $NEW_DB_USER;" > /dev/null # -tAc does not work on this command
 echo "PRIVILEGES: '$NEW_DB_USER' granted all priviledges on database '$NEW_DB_NAME'."
-
-if [ $CREATED_USER -eq 1 ]; then
-  echo "PASSWORD:   $NEW_DB_USER_PASSWORD"
-  echo "            (this is the only time it will be shown)"
-else
-  echo "PASSWORD:   <existing user, password not changed>"
-fi
