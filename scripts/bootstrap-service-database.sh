@@ -1,11 +1,25 @@
 #!/usr/bin/env bash
 set -e
 
-# psql connection variables
-export PGUSER=${PGUSER:-"postgres"}
-export PGPASSWORD=${PGPASSWORD:-"postgres"}
-export PGHOST=${PGHOST:-"localhost"}
-export PGPORT=${PGPORT:-"5432"}
+# Psql connection variables defaults
+PGUSER=${PGUSER:-"postgres"}
+PGPASSWORD=${PGPASSWORD:-"postgres"}
+PGHOST=${PGHOST:-"localhost"}
+PGPORT=${PGPORT:-"5432"}
+
+# Parse given flags
+while [[ "$1" =~ ^- ]]; do 
+  case $1 in
+    -u|--user)  PGUSER="$2";     shift 2 ;;
+    --password) PGPASSWORD="$2"; shift 2 ;;
+    -h|--host)  PGHOST="$2";     shift 2 ;;
+    -p|--port)  PGPORT="$2";     shift 2 ;;
+    *)          echo "Invalid option: $1" >&2; exit 1 ;;
+  esac
+done
+
+# Expose psql connection variables to the environment
+export PGUSER PGPASSWORD PGHOST PGPORT
 
 SERVICE_NAME=$1
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
