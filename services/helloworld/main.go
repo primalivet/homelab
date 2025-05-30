@@ -11,12 +11,12 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	message := os.Getenv("HELLOWORLD")
-	if message == "" {
-		message = "MISSING 'HELLOWORLD' ENV VAR"
+	db := os.Getenv("POSTGRES_DB")
+	if db == "" {
+		db = "MISSING 'HELLOWORLD' ENV VAR"
 	}
 	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, World! " + message))
+		w.Write([]byte("database name: " + db))
 	})
 
 	http.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {

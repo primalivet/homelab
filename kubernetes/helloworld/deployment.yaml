@@ -22,11 +22,11 @@ spec:
         ports:
         - containerPort: 8080
         env:
-        - name: HELLOWORLD
+        - name: POSTGRES_DB
           valueFrom:
               secretKeyRef:
                 name: homelab-secrets
-                key: HELLOWORLD
+                key: SRV_HELLOWORLD_POSTGRES_DB
         resources:
           limits:
             cpu: "0.5"
