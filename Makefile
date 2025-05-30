@@ -10,19 +10,27 @@ iso-aarch64:
 iso-x86_64: 
 	nix build .#nixosConfigurations.iso-x86_64.config.system.build.isoImage
 
+# WHY: Apply kubernetes secrets from a sops encrypted file.
+# - Kustomization 'secretGenerator' can use file outside kustomization
+#   directory if no --load-restrict flag is set. Sops generate FIFO or
+#   non FIFO elsewhere.
 k8s-deploy:
-	# WHY: Apply kubernetes secrets from a sops encrypted file.
-	# - Kustomization 'secretGenerator' can use file outside kustomization
-	#   directory if no --load-restrict flag is set. Sops generate FIFO or
-	#   non FIFO elsewhere.
 	kubectl create secret generic homelab-secrets --dry-run=client --from-env-file=<(sops -d .secret.env) -o yaml | kubectl apply -f -
 	kubectl apply -k ./kubernetes
 
-machine-shutdown-all:
+k8s-drain:
 	@echo "Draining Kubernetes nodes..."
 	kubectl drain homelab2 --ignore-daemonsets --delete-emptydir-data --force --grace-period=30 || true
 	kubectl drain homelab3 --ignore-daemonsets --delete-emptydir-data --force --grace-period=30 || true
 	kubectl drain homelab1 --ignore-daemonsets --delete-emptydir-data --force --grace-period=30 || true
+
+k8s-uncordon:
+	@echo "Uncordoning Kubernetes nodes..."
+	kubectl uncordon homelab2 || true
+	kubectl uncordon homelab3 || true
+	kubectl uncordon homelab1 || true
+
+machine-shutdown-all: k8s-drain
 	@echo "Powering off machines..."
 	ssh -t gustaf@192.168.1.12 "sudo poweroff" || true
 	ssh -t gustaf@192.168.1.11 "sudo poweroff" || true  
