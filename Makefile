@@ -16,7 +16,7 @@ k8s-deploy:
 	#   directory if no --load-restrict flag is set. Sops generate FIFO or
 	#   non FIFO elsewhere.
 	kubectl create secret generic homelab-secrets --dry-run=client --from-env-file=<(sops -d .secret.env) -o yaml | kubectl apply -f -
-	#kubectl apply -k ./kubernetes
+	kubectl apply -k ./kubernetes
 
 machine-shutdown-all:
 	@echo "Draining Kubernetes nodes..."
