@@ -8,4 +8,9 @@
     group = "root";
     mode = "0400";
   };
+  sops.secrets.TAILSCALE_AUTH_KEY = {
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
 }
