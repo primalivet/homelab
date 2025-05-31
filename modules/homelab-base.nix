@@ -25,6 +25,7 @@ with lib;
         2379  # k3s, etcd clients: required if using a "High Availability Embedded etcd" configuration
         2380  # k3s, etcd peers: required if using a "High Availability Embedded etcd" configuration
         10250 # k3s, required for kublet metrics
+        8123  # homeassistant: web interface
       ];
       allowedUDPPorts = [
         8472  # k3s, flannel: required if using multi-node for inter-node networking
