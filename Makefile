@@ -10,12 +10,8 @@ iso-aarch64:
 iso-x86_64: 
 	nix build .#nixosConfigurations.iso-x86_64.config.system.build.isoImage
 
-# WHY: Apply kubernetes secrets from a sops encrypted file.
-# - Kustomization 'secretGenerator' can use file outside kustomization
-#   directory if no --load-restrict flag is set. Sops generate FIFO or
-#   non FIFO elsewhere.
 k8s-deploy:
-	kubectl create secret generic homelab-secrets --dry-run=client --from-env-file=<(sops -d .secret.env) -o yaml | kubectl apply -f -
+	sops -d ./kubernetes/secrets.yaml | kubectl apply -f -
 	kubectl apply -k ./kubernetes
 
 k8s-drain:

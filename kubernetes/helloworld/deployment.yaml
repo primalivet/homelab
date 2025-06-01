@@ -26,7 +26,7 @@ spec:
           valueFrom:
               secretKeyRef:
                 name: homelab-secrets
-                key: SRV_HELLOWORLD_POSTGRES_DB
+                key: srv_helloworld_postgres_db
         resources:
           limits:
             cpu: "0.5"

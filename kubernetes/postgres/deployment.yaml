@@ -25,17 +25,17 @@ spec:
           valueFrom:
               secretKeyRef:
                 name: homelab-secrets
-                key: POSTGRES_DB
+                key: postgres_db
         - name: POSTGRES_USER
           valueFrom:
               secretKeyRef:
                 name: homelab-secrets
-                key: POSTGRES_USER
+                key: postgres_user
         - name: POSTGRES_PASSWORD
           valueFrom:
               secretKeyRef:
                 name: homelab-secrets
-                key: POSTGRES_PASSWORD
+                key: postgres_password
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
         volumeMounts:
