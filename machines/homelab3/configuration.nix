@@ -21,7 +21,7 @@
   services.k3s = {
     enable = true;
     role = "agent";
-    tokenFile = config.sops.secrets.K3S_TOKEN.path;
+    tokenFile = config.sops.secrets.k3s_token.path;
     serverAddr = "https://192.168.1.10:6443";
   };
 
