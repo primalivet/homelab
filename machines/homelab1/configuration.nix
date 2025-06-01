@@ -21,7 +21,7 @@
   services.k3s = {
     enable = true;
     role = "server";
-    tokenFile = config.sops.secrets.K3S_TOKEN.path;
+    tokenFile = config.sops.secrets.k3s_token.path;
     extraFlags = toString [
      "--write-kubeconfig-mode" "644" # let me reach k3s config and use kubectl without sudo
      "--node-taint" "CriticalAddonsOnly=true:NoExecute" # Only put critical pods here, and evict other ones
