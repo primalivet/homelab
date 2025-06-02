@@ -4,6 +4,9 @@
       yq
       ssh-to-age
 
+      # certificates
+      openssl
+
       # kubernetes
       kubectl
       k9s
