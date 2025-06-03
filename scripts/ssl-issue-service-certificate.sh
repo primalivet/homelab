@@ -3,29 +3,87 @@
 set -e 
 
 usage() {
-  echo ""
+cat << EOF
+Usage: $(basename "$0") [OPTIONS] DOMAINS
+
+Issue SSL certificates for services signed by a Root Certificate Authority.
+
+ARGUMENTS:
+    DOMAINS                 Comma-separated list of domain names for the certificate.
+                           Supports wildcards (e.g., "*.example.com").
+
+OPTIONS:
+    --organization ORG      Organization name for certificate subject (default: Homelab)
+    --out-dir DIR           Output directory for generated files (default: ./certs)
+    --root-ca-path-crt FILE Path to Root CA certificate file (default: ./certs/root-ca-homelab.crt)
+    --root-ca-path-key FILE Path to Root CA private key file (default: ./certs/root-ca-homelab.key)
+    -h, --help              Show this help message and exit
+
+DESCRIPTION:
+    This script generates SSL certificates for services that are signed by your
+    Root Certificate Authority. The certificates include Subject Alternative Names
+    (SAN) for all specified domains and are valid for 10 years.
+
+    The first domain in the list is used to generate the output filenames.
+    Domain names are normalized (lowercase, dots/spaces/underscores to hyphens).
+
+OUTPUT FILES:
+    service-<domain>.key    Service private key
+    service-<domain>.crt    Service certificate (signed by Root CA)
+    service-<domain>.csr    Certificate signing request
+    service-<domain>.ext    Certificate extensions file
+
+EXAMPLES:
+    # Single domain certificate
+    $(basename "$0") "api.homelab.local"
+
+    # Multiple domains in one certificate
+    $(basename "$0") "web.homelab,api.homelab,admin.homelab"
+
+    # Wildcard certificate
+    $(basename "$0") "*.homelab.local"
+
+    # Custom CA location
+    $(basename "$0") --root-ca-path-crt ./my-ca.crt --root-ca-path-key ./my-ca.key "service.example.com"
+
+    # Custom output directory
+    $(basename "$0") --out-dir ./ssl-certs "prometheus.monitoring,grafana.monitoring"
+
+ENVIRONMENT VARIABLES:
+    SERVICE_CERT_ORG, SERVICE_CERT_OUT_DIR, ROOT_CA_CRT, ROOT_CA_KEY
+    Can be used instead of command line options.
+
+CERTIFICATE VALIDATION:
+    The script automatically verifies that the generated certificate is properly
+    signed by the Root CA. If verification fails, generated files are cleaned up.
+
+PREREQUISITES:
+    - Root CA certificate and private key must exist and be readable
+    - OpenSSL must be installed and available in PATH
+    - Write permissions in the output directory
+
+EXIT STATUS:
+    0    Success
+    1    Error (missing arguments, invalid CA files, verification failed, etc.)
+
+SEE ALSO:
+    ssl-create-root-ca.sh(1), openssl(1)
+
+EOF
   exit 1;
 }
 
-CITY=${CITY:-"Vänersborg"}
-COUNTRY_CODE=${COUNTRY_CODE:-"SE"}
-EMAIL=${EMAIL:-"gustafholm1@gmail.com"}
-ORG=${ORG:-"Homelab"}
-OUT_DIR=$PWD/certs
+ORG=${SERVICE_CERT_ORG:-"Homelab"}
+OUT_DIR="${SERVICE_CERT_OUT_DIR:-$PWD/certs}"
 ROOT_CA_CRT="${ROOT_CA_CRT:-$PWD/certs/root-ca-homelab.crt}"
 ROOT_CA_KEY="${ROOT_CA_KEY:-$PWD/certs/root-ca-homelab.key}"
-STATE=${STATE:-"Västra Götaland"}
 
 while [[ "$1" =~ ^- ]]; do
   case $1 in
-    --city)             CITY="$2";             shift 2;;
-    --country-code)     COUNTRY_CODE="$2";     shift 2;;
-    --email)            EMAIL="$2";            shift 2;;
     --organization)     ORG="$2";              shift 2;;
     --out-dir)          OUT_DIR="$PWD/$2";     shift 2;;
     --root-ca-path-crt) ROOT_CA_CRT="$PWD/$2"; shift 2;;
     --root-ca-path-key) ROOT_CA_KEY="$PWD/$2"; shift 2;;
-    --state)            STATE="$2";            shift 2;;
     *)                  usage ;;
   esac
 done
@@ -64,7 +122,7 @@ echo "[2/5] Creating certificate signing request (CSR) for *.${OUT_NAME}..."
 openssl req -new \
   -key "$OUT_DIR/$SERVICE_NAME_KEY" \
   -out "$OUT_DIR/$SERVICE_NAME_CSR" \
-  -subj "/C=$COUNTRY_CODE/ST=$STATE/L=$CITY/O=$ORG/CN=*.${OUT_NAME}/emailAddress=$EMAIL"
+  -subj "/CN=*.${OUT_NAME}"
 
 
 echo "[3/5] Creating certificate extensions..."
