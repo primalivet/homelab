@@ -11,6 +11,7 @@ iso-x86_64:
 	nix build .#nixosConfigurations.iso-x86_64.config.system.build.isoImage
 
 k8s-deploy:
+	sops -d ./kubernetes/tls.yaml | kubectl apply -f -
 	sops -d ./kubernetes/secrets.yaml | kubectl apply -f -
 	kubectl apply -k ./kubernetes
 
@@ -25,6 +26,10 @@ k8s-uncordon:
 	kubectl uncordon homelab2 || true
 	kubectl uncordon homelab3 || true
 	kubectl uncordon homelab1 || true
+
+# TODO: add something like the below
+# k8s-boostrap-database:
+#        PGPASSWORD="$(sops -d kubernetes/secrets.yaml | yq -r '.postgres_password')" ./scripts/bootstrap-service-database.sh $(SERVICE_NAME)
 
 machine-shutdown-all: k8s-drain
 	@echo "Powering off machines..."
