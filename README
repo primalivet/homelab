@@ -33,3 +33,23 @@ TODO: Homeassistant backups should be synced to all nodes.
 TODO: Postgres backups should be synced to all nodes.
 TODO: 3-2-1 backup strategy for (3 copies of data, 2 local, 1 offsite).
 TODO: Setup object storage (persistent outside Kubernetes cluster)
+
+ISSUE CERTIFICATES
+1. Create Root CA: `openssl req -x509 -sha256 -days 1825 -newkey rsa:2048 -keyout certs/root-ca-homelab.key -out certs/root-ca-homelab.crt`
+    Follow the instructions in the output to create a new root CA.
+2. Create service certificate: `openssl genrsa -out certs/service-homelab.key 2048`
+3. Create certificate signing request: `openssl req -key certs/service-homelab.key -new -out certs/service-homelab.csr`
+   Common Name (CN) should be the FQDN of the service, challange can be left empty.
+4. Create extension file `certs/service-homelab.ext` to add SANs:
+   ```
+   authorityKeyIdentifier=keyid,issuer
+   basicConstraints=CA:FALSE
+   keyUsage=digitalSignature,keyEncipherment
+   extendedKeyUsage=serverAuth,clientAuth
+   subjectAltName=@alt_names
+   [alt_names]
+   DNS.1 = homelab,
+   DNS.2 = *.homelab
+   ```
+5. Sing the cerificate with our `root-ca-homelab.crt`:
+   `openssl x509 -req -CA certs/root-ca-homelab.crt -CAkey certs/root-ca-homelab.key -in certs/service-homelab.csr -out certs/service-homelab.crt -days 365 -CAcreateserial -extfile certs/service-homelab.ext`
