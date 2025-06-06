@@ -4,7 +4,8 @@ metadata:
   name: helloworld-ingress
   namespace: default
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   rules:
   - host: hello.homelab
@@ -17,5 +18,7 @@ spec:
             name: helloworld
             port: 
               number: 80
+  tls:
+  - secretName: homelab-tls
 
 
