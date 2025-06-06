@@ -12,7 +12,14 @@ creation_rules:
       - *homelab1
       - *homelab2
       - *homelab3
-  - path_regex: kubernetes/secrets-tls.yaml
+  - path_regex: certs/.*.key
+    key_groups:
+    - age:
+      - *gustaf_mbp
+      - *homelab1
+      - *homelab2
+      - *homelab3
+  - path_regex: kubernetes/tls.yaml
     encrypted_regex: '^(data|stringData)$'
     key_groups:
     - age:
