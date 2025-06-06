@@ -18,6 +18,11 @@
     }
   ];
 
+  services.tailscale = {
+    enable = true;
+    authKeyFile = config.sops.secrets.tailscale_authkey.path;
+  };
+
   services.k3s = {
     enable = true;
     role = "agent";
