@@ -4,7 +4,8 @@ metadata:
   name: homeassistant-ingress
   namespace: default
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   rules:
   - host: homeassistant.homelab
@@ -17,3 +18,5 @@ spec:
             name: homeassistant
             port:
               number: 8123
+  tls:
+  - secretName: homelab-tls

@@ -6,4 +6,6 @@ subjectAltName=@alt_names
 [alt_names]
 DNS.1 = homelab,
 DNS.2 = hello.homelab
+DNS.3 = prometheus.homelab
+DNS.4 = homeassistant.homelab
 
