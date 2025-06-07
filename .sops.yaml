@@ -19,7 +19,7 @@ creation_rules:
       - *homelab1
       - *homelab2
       - *homelab3
-  - path_regex: kubernetes/tls.yaml
+  - path_regex: services/deploy/tls.yaml
     encrypted_regex: '^(data|stringData)$'
     key_groups:
     - age:
@@ -27,7 +27,7 @@ creation_rules:
       - *homelab1
       - *homelab2
       - *homelab3
-  - path_regex: kubernetes/secrets.yaml
+  - path_regex: services/deploy/secrets.yaml
     encrypted_regex: '^(data|stringData)$'
     key_groups:
     - age:

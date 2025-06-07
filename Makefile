@@ -11,9 +11,9 @@ iso-x86_64:
 	nix build .#nixosConfigurations.iso-x86_64.config.system.build.isoImage
 
 k8s-deploy:
-	sops -d ./kubernetes/tls.yaml | kubectl apply -f -
-	sops -d ./kubernetes/secrets.yaml | kubectl apply -f -
-	kubectl apply -k ./kubernetes
+	sops -d ./services/deploy/tls.yaml | kubectl apply -f -
+	sops -d ./services/deploy/secrets.yaml | kubectl apply -f -
+	kubectl apply -k ./services/deploy/
 
 k8s-drain:
 	@echo "Draining Kubernetes nodes..."
@@ -29,7 +29,7 @@ k8s-uncordon:
 
 # TODO: add something like the below
 # k8s-boostrap-database:
-#        PGPASSWORD="$(sops -d kubernetes/secrets.yaml | yq -r '.postgres_password')" ./scripts/bootstrap-service-database.sh $(SERVICE_NAME)
+#        PGPASSWORD="$(sops -d services/deploy/secrets.yaml | yq -r '.postgres_password')" ./scripts/bootstrap-service-database.sh $(SERVICE_NAME)
 
 machine-shutdown-all: k8s-drain
 	@echo "Powering off machines..."
