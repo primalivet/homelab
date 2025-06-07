@@ -8,6 +8,7 @@
       openssl
 
       # kubernetes
+      fluxcd
       kubectl
       k9s
 
