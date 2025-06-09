@@ -20,6 +20,15 @@ creation_rules:
       - *homelab1
       - *homelab2
       - *homelab3
+  - path_regex: services/tailscale/deploy/operator.yaml
+    encrypted_regex: '^(data|stringData)$'
+    key_groups:
+    - age:
+      - *gustaf_mbp
+      - *homelab1
+      - *homelab2
+      - *homelab3
+      - *flux
   - path_regex: services/deploy/tls.yaml
     encrypted_regex: '^(data|stringData)$'
     key_groups:

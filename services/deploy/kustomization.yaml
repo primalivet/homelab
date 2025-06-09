@@ -7,3 +7,4 @@ resources:
 - ../homeassistant/deploy/
 - ../postgres/deploy/
 - ../prometheus/deploy/
+- ../tailscale/deploy/
