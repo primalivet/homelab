@@ -5,6 +5,9 @@ metadata:
   namespace: default
 spec:
   ingressClassName: tailscale
+  tls:
+    - hosts:
+        - hello
   rules:
   - http:
       paths:
