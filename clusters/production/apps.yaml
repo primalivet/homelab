@@ -5,13 +5,12 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1m0s
+  retryInterval: 30s
   sourceRef:
     kind: GitRepository
     name: flux-system
   path: ./services/deploy/
   prune: true
-  wait: true
-  timeout: 5m0s
   decryption:
     provider: sops
     secretRef:

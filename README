@@ -34,6 +34,10 @@ TODO: Postgres backups should be synced to all nodes.
 TODO: 3-2-1 backup strategy for (3 copies of data, 2 local, 1 offsite).
 TODO: Setup object storage (persistent outside Kubernetes cluster)
 
+INITIAL FLUX SETUP
+1. Bootstrap Flux: GITHUB_TOKEN=$(sops -d --extract '["github_access_token"]' secrets.yaml) flux bootstrap github --owner primalivet --repository homelab --branch main --path ./clusters/production --personal
+2. Setup Flux age private key as a secret: FLUX_AGE_KEY=$(sops -d --extract '["flux_age_private_key"]' secrets.yaml) kubectl create secret generic age.agekey --from-literal=age.agekey="$FLUX_AGE_KEY" --namespace flux-system 
+
 ISSUE CERTIFICATES
 1. Create Root CA: `openssl req -x509 -sha256 -days 1825 -newkey rsa:2048 -keyout certs/root-ca-homelab.key -out certs/root-ca-homelab.crt`
     Follow the instructions in the output to create a new root CA.
