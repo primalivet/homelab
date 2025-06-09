@@ -30,6 +30,7 @@
     extraFlags = toString [
      "--write-kubeconfig-mode" "644" # let me reach k3s config and use kubectl without sudo
      "--node-taint" "CriticalAddonsOnly=true:NoExecute" # Only put critical pods here, and evict other ones
+     "--tls-san" "homelab1.wind-godzilla.ts.net" # Accept Kubernetes API connections from this host
     ];
     clusterInit = true;
   };
