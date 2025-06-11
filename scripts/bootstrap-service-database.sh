@@ -69,4 +69,17 @@ fi
 
 # Grant all privileges on the database to the user
 psql -c "GRANT ALL PRIVILEGES ON DATABASE $NEW_DB_NAME TO $NEW_DB_USER;" > /dev/null # -tAc does not work on this command
+
+# This is crucial for PostgreSQL 15+ where public schema permissions changed
+psql -d $NEW_DB_NAME -c "GRANT ALL ON SCHEMA public TO $NEW_DB_USER;" > /dev/null
+psql -d $NEW_DB_NAME -c "GRANT CREATE ON SCHEMA public TO $NEW_DB_USER;" > /dev/null
+
+# Grant privileges on all existing tables and sequences in public schema
+psql -d $NEW_DB_NAME -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $NEW_DB_USER;" > /dev/null
+psql -d $NEW_DB_NAME -c "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO $NEW_DB_USER;" > /dev/null
+
+# Set default privileges for future objects created in public schema
+psql -d $NEW_DB_NAME -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO $NEW_DB_USER;" > /dev/null
+psql -d $NEW_DB_NAME -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO $NEW_DB_USER;" > /dev/null
+
 echo "PRIVILEGES: '$NEW_DB_USER' granted all priviledges on database '$NEW_DB_NAME'."
