@@ -1,6 +1,7 @@
 { pkgs }: {
   default = pkgs.mkShell {
     buildInputs = with pkgs; [
+      just
       yq
       ssh-to-age
 
