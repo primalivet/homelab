@@ -17,6 +17,7 @@
       go
       gopls
       postgresql
+      sqlc
 
       # testing
       pyright
