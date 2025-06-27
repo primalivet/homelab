@@ -4,6 +4,8 @@
       just
       yq
       ssh-to-age
+      podman
+      podman-compose
 
       # certificates
       openssl
