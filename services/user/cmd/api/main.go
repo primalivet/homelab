@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,6 +15,11 @@ import (
 )
 
 func run(ctx context.Context, getenv func(string) string) {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+		AddSource: true,
+	}))
+
 	dbURL := getenv("POSTGRES_URL")
 	if dbURL == "" {
 		dbURL = "postgres://service_user:postgres@localhost:5432/service_user?sslmode=disable"
@@ -22,7 +27,7 @@ func run(ctx context.Context, getenv func(string) string) {
 
 	port := getenv("PORT")
 	if port == "" {
-		log.Fatal("PORT environment variable is not set")
+		port = "8080"
 	}
 
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
@@ -30,7 +35,8 @@ func run(ctx context.Context, getenv func(string) string) {
 
 	conn, err := pgx.Connect(ctx, dbURL)
 	if err != nil {
-		log.Fatal("Unable to connect to database:", err)
+		logger.Error("connecting to database failed", "error", err)
+		os.Exit(1)
 	}
 
 	defer conn.Close(ctx)
@@ -39,9 +45,9 @@ func run(ctx context.Context, getenv func(string) string) {
 	jwtSecret :=  "TODO_JWT_SECRET"
 	authMiddleware := auth.NewMiddleware(jwtSecret)
 
-	health.RegisterRoutes(ctx, mux, conn)
-	auth.RegisterRoutes(ctx, mux, conn, jwtSecret)
-	user.RegisterRoutes(ctx, mux, conn, authMiddleware)
+	health.RegisterRoutes(ctx, logger, mux, conn)
+	auth.RegisterRoutes(ctx, logger, mux, conn, jwtSecret)
+	user.RegisterRoutes(ctx, logger, mux, conn, authMiddleware)
 
 	server := &http.Server{
 		Addr:    ":" + port,
@@ -50,9 +56,9 @@ func run(ctx context.Context, getenv func(string) string) {
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("error listening and serving: %s\n", err)
+			logger.Error("error listening and serving", "error", err)
 		}
-		log.Printf("Server starting on port %s", port)
+		logger.Info("listening and serving", "port", port)
 	}()
 
 	<-ctx.Done()
@@ -61,7 +67,7 @@ func run(ctx context.Context, getenv func(string) string) {
 	defer shutdownCancel()
 
 	if err := server.Shutdown(shutdownCtx); err != nil {
-		log.Fatalf("Server shutdown: %v", err)
+		logger.Error("error shutting down server", "error", err)
 	}
 
 }

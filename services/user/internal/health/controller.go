@@ -3,7 +3,7 @@ package health
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
@@ -12,13 +12,15 @@ import (
 
 type Controller struct {
 	ctx context.Context
+	logger *slog.Logger
 	conn *pgx.Conn
 	queries *db.Queries
 }
 
-func NewController(ctx context.Context, conn *pgx.Conn) *Controller {
+func NewController(ctx context.Context, logger *slog.Logger, conn *pgx.Conn) *Controller {
 	return &Controller{
 		ctx: ctx,
+		logger: logger,
 		conn: conn,
 		queries: db.New(conn),
 	}
@@ -27,7 +29,7 @@ func NewController(ctx context.Context, conn *pgx.Conn) *Controller {
 func (c *Controller) Check(w http.ResponseWriter, r *http.Request) {
 	err := c.conn.Ping(c.ctx) // TODO: replace with Request context?
 	if err != nil {
-		log.Printf("Database connection error: %v", err)
+		c.logger.Error("pinging database failed", "error", err)
 		http.Error(w, "Database connection error", http.StatusInternalServerError)
 		return
 	}

@@ -1,0 +1,4 @@
+root = "."
+
+[build]
+cmd = "go build -o ./tmp/main ./cmd/api"

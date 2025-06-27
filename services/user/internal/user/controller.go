@@ -2,7 +2,7 @@ package user
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -10,11 +10,12 @@ import (
 )
 
 type Controller struct {
+	logger *slog.Logger
 	service *Service
 }
 
-func NewController(service *Service) *Controller {
-	return &Controller{ service: service }
+func NewController(logger *slog.Logger, service *Service) *Controller {
+	return &Controller{ logger: logger, service: service }
 }
 
 func (c *Controller) Me(w http.ResponseWriter, r *http.Request) {
@@ -37,13 +38,11 @@ func (c *Controller) ByPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if page <= 0 {
-		log.Printf("Invalid page number: %d", page)
 		http.Error(w, "Invalid page number", http.StatusBadRequest)
 		return
 	}
 
 	if perPage <= 0 || perPage > 100 {
-		log.Printf("Invalid per_page value: %d", perPage)
 		http.Error(w, "Invalid per_page value", http.StatusBadRequest)
 		return
 	}
@@ -53,13 +52,13 @@ func (c *Controller) ByPage(w http.ResponseWriter, r *http.Request) {
 
 	users, err := c.service.List(limit, offset)
 	if err != nil {
-		log.Printf("Error listing users: %v", err)
+		c.logger.Error("listing users failed", "error", err)
 		http.Error(w, "Error listing users", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(ToUsersResponse(users)); err != nil {
-		log.Printf("Error encoding users: %v", err)
+		c.logger.Error("encoding users failed", "error", err)
 		http.Error(w, "Error encoding users", http.StatusInternalServerError)
 		return
 	}
@@ -68,7 +67,6 @@ func (c *Controller) ByPage(w http.ResponseWriter, r *http.Request) {
 func (c *Controller) ByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(r.PathValue("id"), 10, 32)
 	if err != nil {
-		log.Printf("Invalid user ID: %v", err)
 		http.Error(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
@@ -76,7 +74,7 @@ func (c *Controller) ByID(w http.ResponseWriter, r *http.Request) {
 	user, err := c.service.ById(int32(id)) 
 
 	if err != nil {
-		log.Printf("Error fetching user by ID %d: %v", id, err)
+		c.logger.Error("finding user failed", err)
 		http.Error(w, "Error fetching user", http.StatusInternalServerError)
 		return
 	}
