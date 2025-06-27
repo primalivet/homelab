@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: user-migrate-$(date :%s)
+  namespace: default
+  labels:
+    app: user-migrate
+    service: user
+spec:
+  template:
+    metadata:
+      labels:
+        app: user-migrate
+        service: user
+    spec:
+      restartPolicy: Never
+      containers: 
+      - name: migrate
+        image: docker.io/primalivet/service_user-migrate:latest
+        command:
+          - migrate
+          - -path
+          - /migrations
+          - -database
+          - "postgres://service_user:$(POSTGRES_PASSWORD)@postgres:5432/service_user?sslmode=disable"
+          - up
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: homelab-secrets
+              key: srv_user_postgress_password
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+    ttlSecondsAfterFinished: 3600
+
+
+

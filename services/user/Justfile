@@ -1,0 +1,18 @@
+registry := "docker.io/primalivet"
+image_name := "service_user"
+image_tag := "latest"
+image_platforms := "linux/amd64,linux/arm64"
+postgres_url := "postgresql://" + image_name + ":postgres@localhost:5432/" + image_name + "?sslmode=disable"
+
+# Build and run the migration image, passing any go-migrate arguments.
+migrate *args:
+  docker build -f Dockerfile.migrate -t migrate-{{image_name}}:{{image_tag}} .
+  docker run --rm --network host migrate-{{image_name}}:{{image_tag}} -database={{postgres_url}} {{args}}
+
+# Build multi platform images and push to the registry.
+release:
+  docker buildx create --name {{image_name}}-builder --use || true
+  docker buildx build --platform {{image_platforms}} -t {{registry}}/{{image_name}}:{{image_tag}} --push .
+  docker buildx build --platform {{image_platforms}} -t {{registry}}/{{image_name}}-migrate:{{image_tag}} --push .
+  docker context use default || true
+  docker buildx rm {{image_name}}-builder || true

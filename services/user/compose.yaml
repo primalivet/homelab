@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:17.5-alpine3.21
+    restart: unless-stopped
+    ports:
+    - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U service_user -d service_user"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+    environment:
+      - POSTGRES_DB=service_user
+      - POSTGRES_USER=service_user
+      - POSTGRES_PASSWORD=postgres
+  migration:
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
+    command: "-database=postgres://service_user:postgres@postgres:5432/service_user?sslmode=disable up"
+    environment:
+      - POSTGRES_URL=postgres://service_user:postgres@postgres:5432/service_user?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+  api:
+    build:
+      context: .
+      target: development
+    ports:
+      - 8080:8080
+    environment:
+      - PORT=8080
+      - POSTGRES_URL=postgres://service_user:postgres@postgres:5432/service_user?sslmode=disable
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    develop:
+      watch:
+      - action: sync+restart
+        path: .
+        target: /app
+    
